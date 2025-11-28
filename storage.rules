@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public read access to profile pictures (they're meant to be displayed publicly)
+    // But only authenticated users can write/delete their own
+    match /users/{userId}/profile_pictures/{allPaths=**} {
+      allow read: if true;  // Public read access for profile pictures
+      allow write, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Allow authenticated users to read and write their own other files
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Fallback - deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

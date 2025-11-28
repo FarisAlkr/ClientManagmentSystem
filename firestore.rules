@@ -1,0 +1,67 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection
+    match /users/{userId} {
+      // All authenticated users can read all user documents (needed for admin panel)
+      allow read: if request.auth != null;
+
+      // Users can create their own document
+      allow create: if request.auth != null && request.auth.uid == userId;
+
+      // Users can update their own document (including profilePictureUrl)
+      allow update: if request.auth != null && request.auth.uid == userId;
+
+      // Users can delete their own document
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Cities collection - users can only access their own cities
+    match /cities/{cityId} {
+      allow read, write: if request.auth != null &&
+                           resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null &&
+                      request.resource.data.user_id == request.auth.uid;
+    }
+
+    // Clients collection - users can only access their own clients
+    match /clients/{clientId} {
+      allow read, write: if request.auth != null &&
+                           resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null &&
+                      request.resource.data.user_id == request.auth.uid;
+    }
+
+    // Projects collection - users can only access their own projects
+    match /projects/{projectId} {
+      allow read, write: if request.auth != null &&
+                           resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null &&
+                      request.resource.data.user_id == request.auth.uid;
+    }
+
+    // Committees collection - users can only access their own committees
+    match /committees/{committeeId} {
+      allow read, write: if request.auth != null &&
+                           resource.data.user_id == request.auth.uid;
+      allow create: if request.auth != null &&
+                      request.resource.data.user_id == request.auth.uid;
+    }
+
+    // Storage stats collection - admins can read all, users can only read their own
+    match /storage_stats/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow write: if request.auth != null && isAdmin();
+    }
+
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.is_admin == true;
+    }
+
+    // Default rule for other collections
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

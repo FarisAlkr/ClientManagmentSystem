@@ -1,0 +1,56 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.metadata
+.flutter-plugins
+.flutter-plugins-dependencies
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Development
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build artifacts (except the final web build)
+build/
+!build/web/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+*.txt
+
+# Testing
+test/
+integration_test/
+
+# Coverage
+coverage/
+
+# Firebase (if using local emulator)
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Node modules (if any)
+node_modules/

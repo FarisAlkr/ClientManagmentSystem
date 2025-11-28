@@ -1,0 +1,132 @@
+Project Title: Client Project Management App (ניהול לקוחות / Client Management)
+Overview
+Build a web/mobile-responsive application for managing construction/urban planning projects tied to clients, cities, and committees (ועדות מקומיות). The app tracks project stages via interactive checklists, supports Hebrew/English multilingualism (with RTL support for Hebrew), allows PDF exports, and provides intuitive navigation for searching/browsing. It's for a single user/team initially, with potential for multi-user later. Focus on clean, mobile-first UI: dashboard with action buttons and statistics, searchable lists, and checklist views. Default to Hebrew UI with English toggle.
+Key Goals
+
+Streamlined workflow: Committees → Cities → Clients → Project Checklists/Documents.
+Real-time search/filtering without page refreshes.
+Checklist tracking with status toggles, notes, and colored indicators.
+PDF export per client sheet.
+Prevent duplicates (e.g., cities/clients).
+MVP: Core navigation and checklists; polish UI iteratively.
+
+Tech Stack
+
+Flutter 3.24+ (Dart; web target).
+Riverpod for state management.
+Supabase for auth/database/storage.
+Fuse for client-side search.
+pdf package for exports.
+intl for multilingual (Hebrew/English, RTL).
+
+Data Model (Supabase Schema)
+
+Users: id, email (auth via Supabase).
+Committees/Cities (table: cities): id, name (string, unique), description.
+Clients (table: clients): id, city_id (FK), name (string), property_address (string), id_number (string), handling_committee (string), created_at.
+Projects (table: projects, one per client): client_id (FK), stage_data (JSON: array of stages with items).
+Documents/Files (Supabase Storage): Per project, with metadata (status, notes).
+Validation: Case-insensitive unique checks for cities/clients.
+
+Core Features
+
+Authentication & Dashboard
+
+Simple login (email/password).
+Home screen:
+
+App title (wide, prominent: "ניהול לקוחות").
+Statistics cards: e.g., "7 משימות ממתינות" (Pending Tasks), "2 פרויקטים פעילים" (Active Projects).
+Action buttons (blue unless specified):
+
+"הוסף חדש" (+) – Opens modal for new client/project.
+"ניהול לקוחות" (Manage Clients) – Navigates to clients overview.
+"הלוחות" (Committees) – Purple rectangular button, below others; navigates to cities list.
+
+
+Responsive: Stack vertically on mobile.
+
+
+
+
+Committees/Cities Navigation
+
+Tap "Committees" → Full list of cities (e.g., scrollable cards).
+Real-time search: TextField filters list (partial, case-insensitive, Hebrew/English; debounce 300ms; no page refresh/keyboard dismiss).
+Default: Show all on load.
+Add City: Prominent FloatingActionButton (+); validate duplicates ("העיר קיימת כבר" / "City already exists").
+On select city: Navigate to its clients list (pass city context).
+
+
+Clients Management
+
+Per city: Scrollable list of clients (cards with name, address, ID).
+Search: Filter by name/committee (prominent search bar; real-time, fuzzy).
+Add Client: Top-right FloatingActionButton (blue icon); modal pre-fills city; fields: name, address, ID, committee. Prevent duplicates ("הלקוח קיים כבר" / "Client already exists").
+On select client: Navigate to project checklist.
+
+
+Project Checklists (Core Sheet per Client)
+
+Dedicated view per client: Header with client info (name, address, ID, committee).
+Tabbed/Accordion stages (match spec exactly; default "לא בוצע" / Not Done, gray/red color; toggle to "כן" / Done, green).
+Each item: Checkbox (כן/לא), TextField for "פירוט" / Notes.
+Stages (exact; JSON-structured for easy export):
+
+שלב תיק מידע (Information File Stage): 11 items (e.g., "מדידה מצבית", "חוזה חכירה", ..., "מס בקשה למידע"). Items 9-11 are text-only (no toggle).
+שלב תכנון (Planning Stage): 6 items (e.g., "סקיצה ראשונית מאושרת - קרקע", "הדמיה D3").
+שלבי הגשה (Submission Stages): 13 items (e.g., "תכנית הגשה + רכיב שטחים", "היטל השבחה"). Item 8 text-only.
+בקרת תכן (Design Control): 8 items (e.g., "רשות מקרקעי ישראל", "דוח עורך הבקרה").
+היתר בניה וביצוע (Building Permit & Execution): 9 items (e.g., "אגרה סופית", "תקרה ג").
+
+
+Progress stats: % complete per stage/overall.
+Notes/Files: Attach/upload docs per item (Supabase Storage; show status: Delivered/Not).
+Export: "שלח להדפסה PDF" button – Generate styled PDF of full sheet (include colors, notes).
+
+
+Search & Data Extraction
+
+Global: Search clients by committee/city (prominent bar on dashboard/clients view).
+Extract: On client select, show all data (tables/files); option to download batch.
+No refreshes; smooth filtering.
+
+
+UI/UX Guidelines
+
+Colors: Blue for actions (+, Manage), Purple for Committees (rectangular).
+Navigation: Minimal taps (2-3 to docs); back buttons; no hidden features.
+Mobile: Keyboard stays open during search; prominent + for adds; RTL for Hebrew.
+Error Handling: Snackbars for duplicates/errors (e.g., auto-dismiss 3s).
+Accessibility: Keyboard nav, semantic labels.
+
+
+
+User Workflows
+
+Core Flow: Login → Dashboard → Committees (purple btn) → Search/Select City → Clients List (+ to add) → Select Client → Checklist (toggle statuses, add notes/files) → Export PDF.
+Add New: Dashboard + → Modal for client/project → Auto-save to selected/default city.
+Search Flow: Type in bar → Instant filter (e.g., cities/clients); "No results" message.
+Edge Cases: Offline mode (local state sync); duplicate prevention; empty states (e.g., no cities).
+
+Acceptance Criteria (MVP)
+
+ Dashboard: Buttons, stats, intuitive layout.
+ Full workflow: Committees → City → Client → Checklist (no breaks).
+ Checklists: Exact items/stages; toggles save; colors; notes.
+ Search: Real-time, no refresh/keyboard issues.
+ PDF: Exports full sheet accurately.
+ Multilingual: Hebrew default; English toggle (RTL).
+ Performance: <2s loads; responsive on web/mobile.
+ Tests: Basic widget tests for workflows; unit for validations.
+Demo: Generate a short walkthrough of core flow.
+
+Development Phases for AI
+
+Scaffold app + auth + dashboard.
+Build cities/clients navigation + search.
+Implement checklists + PDF.
+Add multilingual + polish.
+Test/fix bugs.
+
+Generate the full codebase in a GitHub-ready repo structure. Start with lib/main.dart for app entry.
